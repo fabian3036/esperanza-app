@@ -42,7 +42,8 @@ export default {
       );
 
       const data = await geminiRes.json();
-      const respuesta = data?.candidates?.[0]?.content?.parts?.[0]?.text || "Sin respuesta de Gemini";
+      const respuesta = data?.candidates?.[0]?.content?.parts?.[0]?.text || JSON.stringify(data);
+
 
       return new Response(JSON.stringify({ respuesta }), {
         headers: { "Content-Type": "application/json", ...corsHeaders }
