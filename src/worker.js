@@ -10,15 +10,19 @@ export default {
       return new Response(null, { headers: corsHeaders });
     }
 
+    // Si es GET, mostrar la página web (index.html u otros archivos estáticos)
+    if (request.method === "GET") {
+      return env.ASSETS.fetch(request);
+    }
+
     if (request.method !== "POST") {
-      return new Response("Usa POST", { status: 405, headers: corsHeaders });
+      return new Response("Método no soportado", { status: 405, headers: corsHeaders });
     }
 
     try {
       const body = await request.json();
-      const accion = body.accion; // "guardar" o "buscar"
+      const accion = body.accion;
 
-      // ---- GUARDAR ----
       if (accion === "guardar") {
         const texto = body.texto;
         if (!texto) {
@@ -34,7 +38,6 @@ export default {
         });
       }
 
-      // ---- BUSCAR ----
       if (accion === "buscar") {
         const pregunta = body.pregunta;
         if (!pregunta) {
@@ -44,7 +47,6 @@ export default {
           });
         }
 
-        // Traer todas las notas guardadas
         const lista = await env.MEMORIA.list();
         const notas = [];
         for (const key of lista.keys) {
