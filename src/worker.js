@@ -10,7 +10,6 @@ export default {
       return new Response(null, { headers: corsHeaders });
     }
 
-    // Si es GET, mostrar la página web (index.html u otros archivos estáticos)
     if (request.method === "GET") {
       return env.ASSETS.fetch(request);
     }
@@ -23,12 +22,12 @@ export default {
       const body = await request.json();
       const accion = body.accion;
 
+      // ---- GUARDAR NOTA (Memoria externa) ----
       if (accion === "guardar") {
         const texto = body.texto;
         if (!texto) {
           return new Response(JSON.stringify({ error: "Falta el texto a guardar" }), {
-            status: 400,
-            headers: { "Content-Type": "application/json", ...corsHeaders }
+            status: 400, headers: { "Content-Type": "application/json", ...corsHeaders }
           });
         }
         const clave = `nota:${Date.now()}`;
@@ -38,26 +37,23 @@ export default {
         });
       }
 
+      // ---- BUSCAR (Memoria externa) ----
       if (accion === "buscar") {
         const pregunta = body.pregunta;
         if (!pregunta) {
           return new Response(JSON.stringify({ error: "Falta la pregunta" }), {
-            status: 400,
-            headers: { "Content-Type": "application/json", ...corsHeaders }
+            status: 400, headers: { "Content-Type": "application/json", ...corsHeaders }
           });
         }
-
         const lista = await env.MEMORIA.list();
         const notas = [];
         for (const key of lista.keys) {
           const valor = await env.MEMORIA.get(key.name);
           if (valor) notas.push(valor);
         }
-
         const contexto = notas.length > 0
           ? "Estas son las notas que el usuario ha guardado:\n" + notas.map((n, i) => `${i + 1}. ${n}`).join("\n")
           : "El usuario no ha guardado ninguna nota todavía.";
-
         const promptFinal = `${contexto}\n\nPregunta del usuario: ${pregunta}\n\nResponde basándote únicamente en las notas de arriba. Si no encuentras la respuesta en las notas, dilo claramente.`;
 
         const geminiRes = await fetch(
@@ -68,24 +64,54 @@ export default {
             body: JSON.stringify({ contents: [{ parts: [{ text: promptFinal }] }] })
           }
         );
-
         const data = await geminiRes.json();
         const respuesta = data?.candidates?.[0]?.content?.parts?.[0]?.text || JSON.stringify(data);
-
         return new Response(JSON.stringify({ respuesta }), {
           headers: { "Content-Type": "application/json", ...corsHeaders }
         });
       }
 
-      return new Response(JSON.stringify({ error: "Acción no reconocida. Usa 'guardar' o 'buscar'" }), {
-        status: 400,
-        headers: { "Content-Type": "application/json", ...corsHeaders }
+      // ---- IDENTIFICAR (¿Qué estoy viendo?) ----
+      if (accion === "identificar") {
+        const imagenBase64 = body.imagen;
+        const mimeType = body.mimeType || "image/jpeg";
+        if (!imagenBase64) {
+          return new Response(JSON.stringify({ error: "Falta la imagen" }), {
+            status: 400, headers: { "Content-Type": "application/json", ...corsHeaders }
+          });
+        }
+
+        const promptVision = "Mira esta imagen y explica de forma clara y sencilla: ¿qué es este objeto?, ¿para qué sirve?, ¿cómo se usa?, y si notas algo relevante (si parece antiguo, su marca, estado, etc.). Responde en español, en un párrafo breve y fácil de entender.";
+
+        const geminiRes = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${env.GEMINI_API_KEY}`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              contents: [{
+                parts: [
+                  { text: promptVision },
+                  { inline_data: { mime_type: mimeType, data: imagenBase64 } }
+                ]
+              }]
+            })
+          }
+        );
+        const data = await geminiRes.json();
+        const respuesta = data?.candidates?.[0]?.content?.parts?.[0]?.text || JSON.stringify(data);
+        return new Response(JSON.stringify({ respuesta }), {
+          headers: { "Content-Type": "application/json", ...corsHeaders }
+        });
+      }
+
+      return new Response(JSON.stringify({ error: "Acción no reconocida" }), {
+        status: 400, headers: { "Content-Type": "application/json", ...corsHeaders }
       });
 
     } catch (err) {
       return new Response(JSON.stringify({ error: err.message }), {
-        status: 500,
-        headers: { "Content-Type": "application/json", ...corsHeaders }
+        status: 500, headers: { "Content-Type": "application/json", ...corsHeaders }
       });
     }
   }
