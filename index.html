@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Esperanza App - Memoria Externa</title>
+<title>Esperanza App</title>
 <style>
   * { box-sizing: border-box; }
   body {
@@ -45,6 +45,7 @@
   }
   .btn-guardar { background: #2e7d32; }
   .btn-buscar { background: #1565c0; }
+  .btn-camara { background: #6a1b9a; }
   .resultado {
     margin-top: 12px;
     padding: 12px;
@@ -55,25 +56,38 @@
     white-space: pre-wrap;
   }
   .cargando { color: #888; font-style: italic; }
+  img.preview {
+    width: 100%;
+    border-radius: 10px;
+    margin-top: 10px;
+  }
 </style>
 </head>
 <body>
 
-<h1>🧠 Memoria Externa</h1>
-<p class="subtitle">Esperanza App</p>
+<h1>Esperanza App</h1>
+<p class="subtitle">🧠 Memoria Externa · 📷 ¿Qué estoy viendo?</p>
 
 <div class="card">
-  <h2>Guardar algo nuevo</h2>
+  <h2>🧠 Guardar algo nuevo</h2>
   <textarea id="textoGuardar" placeholder="Ej: El filtro de aire de mi carro es Fram CA10171"></textarea>
   <button class="btn-guardar" onclick="guardar()">Guardar</button>
   <div class="resultado" id="resultadoGuardar"></div>
 </div>
 
 <div class="card">
-  <h2>Preguntar</h2>
+  <h2>🧠 Preguntar</h2>
   <textarea id="textoPregunta" placeholder="Ej: ¿Qué filtro de aire usa mi carro?"></textarea>
   <button class="btn-buscar" onclick="buscar()">Preguntar</button>
   <div class="resultado" id="resultadoBuscar"></div>
+</div>
+
+<div class="card">
+  <h2>📷 ¿Qué estoy viendo?</h2>
+  <input type="file" id="inputFoto" accept="image/*" capture="environment" style="display:none" onchange="fotoSeleccionada()">
+  <button class="btn-camara" onclick="document.getElementById('inputFoto').click()">Tomar foto</button>
+  <img id="preview" class="preview" style="display:none">
+  <div class="resultado" id="resultadoFoto"></div>
 </div>
 
 <script>
@@ -83,10 +97,8 @@ async function guardar() {
   const texto = document.getElementById('textoGuardar').value.trim();
   const resultado = document.getElementById('resultadoGuardar');
   if (!texto) { resultado.textContent = "Escribe algo primero."; return; }
-
   resultado.textContent = "Guardando...";
   resultado.className = "resultado cargando";
-
   try {
     const res = await fetch(API_URL, {
       method: "POST",
@@ -107,10 +119,8 @@ async function buscar() {
   const pregunta = document.getElementById('textoPregunta').value.trim();
   const resultado = document.getElementById('resultadoBuscar');
   if (!pregunta) { resultado.textContent = "Escribe una pregunta primero."; return; }
-
   resultado.textContent = "Pensando...";
   resultado.className = "resultado cargando";
-
   try {
     const res = await fetch(API_URL, {
       method: "POST",
@@ -125,7 +135,23 @@ async function buscar() {
     resultado.textContent = "Error de conexión: " + e.message;
   }
 }
-</script>
 
-</body>
-</html>
+function fotoSeleccionada() {
+  const input = document.getElementById('inputFoto');
+  const preview = document.getElementById('preview');
+  const resultado = document.getElementById('resultadoFoto');
+  const file = input.files[0];
+  if (!file) return;
+
+  preview.src = URL.createObjectURL(file);
+  preview.style.display = "block";
+  resultado.textContent = "Analizando imagen...";
+  resultado.className = "resultado cargando";
+
+  const reader = new FileReader();
+  reader.onload = async function() {
+    const base64Completo = reader.result; // "data:image/jpeg;base64,XXXXX"
+    const base64Puro = base64Completo.split(',')[1];
+
+    try {
+      const res = await fet
