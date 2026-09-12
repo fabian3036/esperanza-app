@@ -1,3 +1,6 @@
 name = "esperanza-api"
 main = "src/worker.js"
 compatibility_date = "2024-09-01"
+[[kv_namespaces]]
+binding = "MEMORIA"
+id = "3bf181e8f69441e7a6bdf9c8a1b862c9"
