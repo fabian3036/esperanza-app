@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Esperanza App - Memoria Externa</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, sans-serif;
+    background: #f4f4f6;
+    margin: 0;
+    padding: 20px;
+    color: #222;
+  }
+  h1 { font-size: 22px; text-align: center; margin-bottom: 4px; }
+  p.subtitle { text-align: center; color: #666; margin-top: 0; margin-bottom: 24px; font-size: 14px; }
+  .card {
+    background: white;
+    border-radius: 16px;
+    padding: 18px;
+    margin-bottom: 18px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+  .card h2 { font-size: 16px; margin-top: 0; }
+  textarea {
+    width: 100%;
+    min-height: 80px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 10px;
+    font-size: 15px;
+    resize: vertical;
+  }
+  button {
+    margin-top: 10px;
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 600;
+    color: white;
+    cursor: pointer;
+  }
+  .btn-guardar { background: #2e7d32; }
+  .btn-buscar { background: #1565c0; }
+  .resultado {
+    margin-top: 12px;
+    padding: 12px;
+    border-radius: 10px;
+    background: #f0f0f0;
+    font-size: 15px;
+    min-height: 20px;
+    white-space: pre-wrap;
+  }
+  .cargando { color: #888; font-style: italic; }
+</style>
+</head>
+<body>
+
+<h1>🧠 Memoria Externa</h1>
+<p class="subtitle">Esperanza App</p>
+
+<div class="card">
+  <h2>Guardar algo nuevo</h2>
+  <textarea id="textoGuardar" placeholder="Ej: El filtro de aire de mi carro es Fram CA10171"></textarea>
+  <button class="btn-guardar" onclick="guardar()">Guardar</button>
+  <div class="resultado" id="resultadoGuardar"></div>
+</div>
+
+<div class="card">
+  <h2>Preguntar</h2>
+  <textarea id="textoPregunta" placeholder="Ej: ¿Qué filtro de aire usa mi carro?"></textarea>
+  <button class="btn-buscar" onclick="buscar()">Preguntar</button>
+  <div class="resultado" id="resultadoBuscar"></div>
+</div>
+
+<script>
+const API_URL = "https://esperanza-api.fabianbarboza.workers.dev";
+
+async function guardar() {
+  const texto = document.getElementById('textoGuardar').value.trim();
+  const resultado = document.getElementById('resultadoGuardar');
+  if (!texto) { resultado.textContent = "Escribe algo primero."; return; }
+
+  resultado.textContent = "Guardando...";
+  resultado.className = "resultado cargando";
+
+  try {
+    const res = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ accion: "guardar", texto })
+    });
+    const data = await res.json();
+    resultado.className = "resultado";
+    resultado.textContent = data.ok ? "✅ Guardado" : "Error: " + (data.error || "desconocido");
+    if (data.ok) document.getElementById('textoGuardar').value = "";
+  } catch (e) {
+    resultado.className = "resultado";
+    resultado.textContent = "Error de conexión: " + e.message;
+  }
+}
+
+async function buscar() {
+  const pregunta = document.getElementById('textoPregunta').value.trim();
+  const resultado = document.getElementById('resultadoBuscar');
+  if (!pregunta) { resultado.textContent = "Escribe una pregunta primero."; return; }
+
+  resultado.textContent = "Pensando...";
+  resultado.className = "resultado cargando";
+
+  try {
+    const res = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ accion: "buscar", pregunta })
+    });
+    const data = await res.json();
+    resultado.className = "resultado";
+    resultado.textContent = data.respuesta || "Error: " + (data.error || "desconocido");
+  } catch (e) {
+    resultado.className = "resultado";
+    resultado.textContent = "Error de conexión: " + e.message;
+  }
+}
+</script>
+
+</body>
+</html>
