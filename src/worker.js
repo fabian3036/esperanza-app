@@ -81,7 +81,38 @@ export default {
           });
         }
 
-        const promptVision = "Mira esta imagen y explica de forma clara y sencilla: ¿qué es este objeto?, ¿para qué sirve?, ¿cómo se usa?, y si notas algo relevante (si parece antiguo, su marca, estado, etc.). Responde en español, en un párrafo breve y fácil de entender.";
+        const promptVision = `Mira esta imagen e identifica qué se ve, adaptando tu respuesta según el tipo de cosa. Sé completo y detallado, no básico:
+
+Si es un OBJETO:
+- Qué es exactamente (nombre específico, no genérico)
+- Para qué sirve y cómo se usa correctamente
+- Marca o fabricante si es identificable
+- Material del que está hecho
+- Época o antigüedad aproximada si aplica
+- Estado de conservación
+- Valor aproximado si es relevante (antigüedad, colección, reventa)
+- Curiosidades o datos poco conocidos sobre el objeto
+
+Si es una PLANTA:
+- Nombre común y nombre científico
+- Familia de la planta
+- Si es tóxica o segura para personas y mascotas (y qué síntomas causa si es tóxica)
+- Cuidados básicos (luz, agua, tipo de suelo)
+- Usos conocidos (medicinal, ornamental, comestible)
+- Origen de la especie
+
+Si es un ANIMAL o INSECTO:
+- Especie o tipo específico (no genérico)
+- IMPORTANCIA MÉDICA primero y de forma clara: si es venenoso, peligroso, o transmisor de enfermedades — con advertencia visible al inicio
+- Qué hacer si te encuentras con este animal (evitarlo, capturarlo, llamar a alguien)
+- Comportamiento típico y hábitat
+- Si es común en la zona de México/Cancún
+
+Si la imagen parece mostrar algo extraño, borroso o "paranormal" (sombras raras, luces, formas inusuales):
+- Da la explicación más probable y racional con detalle (tipo de reflejo, por qué se forma esa sombra, efecto óptico o de cámara específico)
+- Explica por qué NO es necesariamente algo sobrenatural, con el razonamiento completo
+
+Responde en español, organizado con los títulos correspondientes, de forma completa pero clara.`;
 
         const geminiRes = await fetch(
           `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${env.GEMINI_API_KEY}`,
