@@ -189,6 +189,46 @@ Si no estás seguro del problema exacto por la imagen, dilo honestamente y da la
         });
       }
 
+      // ---- CONECTAR (Conexiones) ----
+      if (accion === "conectar") {
+        const problema = body.problema;
+        if (!problema) {
+          return new Response(JSON.stringify({ error: "Falta describir el problema" }), {
+            status: 400, headers: { "Content-Type": "application/json", ...corsHeaders }
+          });
+        }
+        const promptConectar = `El usuario te va a describir un PROBLEMA (no una solución que ya tenga en mente). Tu trabajo es actuar como un pensador creativo que conecta ideas de campos distintos y no obvios (negocios, ingeniería, naturaleza, psicología, historia, otras industrias) para proponer estrategias originales.
+
+Problema del usuario: "${problema}"
+
+Responde en español con este formato exacto:
+
+CONEXIONES ENCONTRADAS:
+(2 a 4 ideas o principios de otros campos que se pueden conectar con este problema, explicando brevemente cada uno y por qué aplica aquí)
+
+ESTRATEGIAS PROPUESTAS:
+(2 a 3 estrategias concretas y accionables que nacen de esas conexiones, numeradas)
+
+PRIMER PASO SUGERIDO:
+(una acción concreta y simple que el usuario podría hacer hoy mismo para empezar)
+
+Sé específico, evita consejos genéricos como "sé creativo" o "piensa fuera de la caja" — busca conexiones realmente no obvias.`;
+
+        const geminiRes = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${env.GEMINI_API_KEY}`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ contents: [{ parts: [{ text: promptConectar }] }] })
+          }
+        );
+        const data = await geminiRes.json();
+        const respuesta = data?.candidates?.[0]?.content?.parts?.[0]?.text || JSON.stringify(data);
+        return new Response(JSON.stringify({ respuesta }), {
+          headers: { "Content-Type": "application/json", ...corsHeaders }
+        });
+      }
+
       return new Response(JSON.stringify({ error: "Acción no reconocida" }), {
         status: 400, headers: { "Content-Type": "application/json", ...corsHeaders }
       });
