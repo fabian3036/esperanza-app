@@ -112,6 +112,8 @@ Si la imagen parece mostrar algo extraño, borroso o "paranormal" (sombras raras
 - Da la explicación más probable y racional con detalle (tipo de reflejo, por qué se forma esa sombra, efecto óptico o de cámara específico)
 - Explica por qué NO es necesariamente algo sobrenatural, con el razonamiento completo
 
+Si la imagen muestra principalmente a una PERSONA: no intentes identificarla ni describirla físicamente; en su lugar, analiza los objetos, ropa o elementos materiales relevantes que aparecen en la escena, siguiendo el formato de OBJETO de arriba.
+
 Responde en español, organizado con los títulos correspondientes, de forma completa pero clara.`;
 
         const geminiRes = await fetch(
@@ -123,6 +125,57 @@ Responde en español, organizado con los títulos correspondientes, de forma com
               contents: [{
                 parts: [
                   { text: promptVision },
+                  { inline_data: { mime_type: mimeType, data: imagenBase64 } }
+                ]
+              }]
+            })
+          }
+        );
+        const data = await geminiRes.json();
+        const respuesta = data?.candidates?.[0]?.content?.parts?.[0]?.text || JSON.stringify(data);
+        return new Response(JSON.stringify({ respuesta }), {
+          headers: { "Content-Type": "application/json", ...corsHeaders }
+        });
+      }
+
+      // ---- REPARAR (Hazlo tú mismo) ----
+      if (accion === "reparar") {
+        const imagenBase64 = body.imagen;
+        const mimeType = body.mimeType || "image/jpeg";
+        if (!imagenBase64) {
+          return new Response(JSON.stringify({ error: "Falta la imagen" }), {
+            status: 400, headers: { "Content-Type": "application/json", ...corsHeaders }
+          });
+        }
+        const promptReparar = `Mira esta imagen de algo que necesita reparación y responde en español, de forma clara y organizada con estos títulos exactos:
+
+PROBLEMA PROBABLE:
+(explica qué parece estar dañado o mal)
+
+HERRAMIENTAS NECESARIAS:
+(lista simple)
+
+MATERIALES NECESARIOS:
+(lista simple)
+
+PASOS A SEGUIR:
+(numerados, claros, paso a paso)
+
+DIFICULTAD: (Fácil / Media / Difícil)
+
+TIEMPO ESTIMADO: (ej. 15-30 minutos)
+
+Si no estás seguro del problema exacto por la imagen, dilo honestamente y da la explicación más probable.`;
+
+        const geminiRes = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${env.GEMINI_API_KEY}`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              contents: [{
+                parts: [
+                  { text: promptReparar },
                   { inline_data: { mime_type: mimeType, data: imagenBase64 } }
                 ]
               }]
