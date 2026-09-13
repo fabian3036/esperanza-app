@@ -48,6 +48,7 @@
   .btn-guardar { background: #2e7d32; }
   .btn-buscar { background: #1565c0; }
   .btn-camara { background: #6a1b9a; }
+  .btn-reparar { background: #d84315; }
   .resultado {
     margin-top: 12px;
     padding: 12px;
@@ -71,7 +72,7 @@
 <body>
 
 <h1>Esperanza App</h1>
-<p class="subtitle">🧠 Memoria Externa · 📷 ¿Qué estoy viendo?</p>
+<p class="subtitle">🧠 Memoria · 📷 ¿Qué estoy viendo? · 🔧 Hazlo tú mismo</p>
 
 <div class="card">
   <h2>🧠 Guardar algo nuevo</h2>
@@ -97,41 +98,38 @@
   <div class="resultado" id="resultadoFoto"></div>
 </div>
 
+<div class="card">
+  <h2>🔧 Hazlo tú mismo</h2>
+  <p style="font-size:13px; color:#666; margin-top:-6px;">Fotografía algo que necesite reparación</p>
+  <label class="btn-reparar">
+    Tomar foto de la reparación
+    <input type="file" id="inputReparar" accept="image/*" capture="environment" style="display:none" onchange="fotoReparar()">
+  </label>
+  <img id="previewReparar" class="preview" style="display:none">
+  <div class="resultado" id="resultadoReparar"></div>
+</div>
+
 <script>
 const API_URL = "https://esperanza-api.fabianbarboza.workers.dev";
 
-// Convierte el formato markdown simple de Gemini (**negrita**, ### títulos, - listas) a HTML
 function formatearRespuesta(texto) {
   if (!texto) return "";
   let html = texto;
-
-  // Escapar HTML peligroso primero
   html = html.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-
-  // Títulos ### Texto
   html = html.replace(/^###\s+(.+)$/gm, "<h3>$1</h3>");
   html = html.replace(/^##\s+(.+)$/gm, "<h3>$1</h3>");
-
-  // Negritas **texto**
   html = html.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
-
-  // Listas con * o -
   html = html.replace(/^[\*\-]\s+(.+)$/gm, "<li>$1</li>");
   html = html.replace(/(<li>.*<\/li>\n?)+/g, function(match) {
     return "<ul>" + match + "</ul>";
   });
-
-  // Líneas ---
   html = html.replace(/^---$/gm, "<hr>");
-
-  // Saltos de línea dobles como párrafos
   html = html.split(/\n\n+/).map(function(bloque) {
     if (bloque.trim().startsWith("<h3>") || bloque.trim().startsWith("<ul>") || bloque.trim() === "<hr>") {
       return bloque;
     }
     return "<p>" + bloque.replace(/\n/g, "<br>") + "</p>";
   }).join("");
-
   return html;
 }
 
@@ -188,22 +186,52 @@ function fotoSeleccionada() {
   const resultado = document.getElementById('resultadoFoto');
   const file = input.files[0];
   if (!file) return;
-
   preview.src = URL.createObjectURL(file);
   preview.style.display = "block";
   resultado.textContent = "Analizando imagen...";
   resultado.className = "resultado cargando";
-
   const reader = new FileReader();
   reader.onload = async function() {
-    const base64Completo = reader.result;
-    const base64Puro = base64Completo.split(',')[1];
-
+    const base64Puro = reader.result.split(',')[1];
     try {
       const res = await fetch(API_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ accion: "identificar", imagen: base64Puro, mimeType: file.type })
+      });
+      const data = await res.json();
+      resultado.className = "resultado";
+      if (data.respuesta) {
+        resultado.innerHTML = formatearRespuesta(data.respuesta);
+      } else {
+        resultado.textContent = "Error: " + (data.error || "desconocido");
+      }
+    } catch (e) {
+      resultado.className = "resultado";
+      resultado.textContent = "Error de conexión: " + e.message;
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+function fotoReparar() {
+  const input = document.getElementById('inputReparar');
+  const preview = document.getElementById('previewReparar');
+  const resultado = document.getElementById('resultadoReparar');
+  const file = input.files[0];
+  if (!file) return;
+  preview.src = URL.createObjectURL(file);
+  preview.style.display = "block";
+  resultado.textContent = "Analizando el problema...";
+  resultado.className = "resultado cargando";
+  const reader = new FileReader();
+  reader.onload = async function() {
+    const base64Puro = reader.result.split(',')[1];
+    try {
+      const res = await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ accion: "reparar", imagen: base64Puro, mimeType: file.type })
       });
       const data = await res.json();
       resultado.className = "resultado";
