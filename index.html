@@ -55,8 +55,11 @@
     background: #f0f0f0;
     font-size: 15px;
     min-height: 20px;
-    white-space: pre-wrap;
+    line-height: 1.5;
   }
+  .resultado h3 { font-size: 15px; margin: 12px 0 6px 0; }
+  .resultado ul { margin: 4px 0; padding-left: 20px; }
+  .resultado p { margin: 6px 0; }
   .cargando { color: #888; font-style: italic; }
   img.preview {
     width: 100%;
@@ -97,6 +100,41 @@
 <script>
 const API_URL = "https://esperanza-api.fabianbarboza.workers.dev";
 
+// Convierte el formato markdown simple de Gemini (**negrita**, ### títulos, - listas) a HTML
+function formatearRespuesta(texto) {
+  if (!texto) return "";
+  let html = texto;
+
+  // Escapar HTML peligroso primero
+  html = html.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+  // Títulos ### Texto
+  html = html.replace(/^###\s+(.+)$/gm, "<h3>$1</h3>");
+  html = html.replace(/^##\s+(.+)$/gm, "<h3>$1</h3>");
+
+  // Negritas **texto**
+  html = html.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+
+  // Listas con * o -
+  html = html.replace(/^[\*\-]\s+(.+)$/gm, "<li>$1</li>");
+  html = html.replace(/(<li>.*<\/li>\n?)+/g, function(match) {
+    return "<ul>" + match + "</ul>";
+  });
+
+  // Líneas ---
+  html = html.replace(/^---$/gm, "<hr>");
+
+  // Saltos de línea dobles como párrafos
+  html = html.split(/\n\n+/).map(function(bloque) {
+    if (bloque.trim().startsWith("<h3>") || bloque.trim().startsWith("<ul>") || bloque.trim() === "<hr>") {
+      return bloque;
+    }
+    return "<p>" + bloque.replace(/\n/g, "<br>") + "</p>";
+  }).join("");
+
+  return html;
+}
+
 async function guardar() {
   const texto = document.getElementById('textoGuardar').value.trim();
   const resultado = document.getElementById('resultadoGuardar');
@@ -133,7 +171,11 @@ async function buscar() {
     });
     const data = await res.json();
     resultado.className = "resultado";
-    resultado.textContent = data.respuesta || "Error: " + (data.error || "desconocido");
+    if (data.respuesta) {
+      resultado.innerHTML = formatearRespuesta(data.respuesta);
+    } else {
+      resultado.textContent = "Error: " + (data.error || "desconocido");
+    }
   } catch (e) {
     resultado.className = "resultado";
     resultado.textContent = "Error de conexión: " + e.message;
@@ -165,7 +207,11 @@ function fotoSeleccionada() {
       });
       const data = await res.json();
       resultado.className = "resultado";
-      resultado.textContent = data.respuesta || "Error: " + (data.error || "desconocido");
+      if (data.respuesta) {
+        resultado.innerHTML = formatearRespuesta(data.respuesta);
+      } else {
+        resultado.textContent = "Error: " + (data.error || "desconocido");
+      }
     } catch (e) {
       resultado.className = "resultado";
       resultado.textContent = "Error de conexión: " + e.message;
