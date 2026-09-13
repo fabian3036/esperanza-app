@@ -7,90 +7,166 @@
 <style>
   * { box-sizing: border-box; }
   body {
-    font-family: -apple-system, sans-serif;
-    background: #f4f4f6;
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+    background: linear-gradient(180deg, #fdf6f0 0%, #f4f1fa 100%);
     margin: 0;
-    padding: 20px;
-    color: #222;
+    padding: 24px 16px 48px;
+    color: #2d2a35;
   }
-  h1 { font-size: 22px; text-align: center; margin-bottom: 4px; }
-  p.subtitle { text-align: center; color: #666; margin-top: 0; margin-bottom: 24px; font-size: 14px; }
+  header {
+    text-align: center;
+    margin-bottom: 28px;
+  }
+  header h1 {
+    font-size: 26px;
+    font-weight: 800;
+    margin: 0;
+    background: linear-gradient(90deg, #7b2ff7, #f107a3);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  header p {
+    color: #8a8494;
+    font-size: 13px;
+    margin: 6px 0 0;
+  }
   .card {
-    background: white;
-    border-radius: 16px;
-    padding: 18px;
-    margin-bottom: 18px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    background: #ffffff;
+    border-radius: 22px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 8px 24px rgba(80, 50, 120, 0.08);
+    border: 1px solid rgba(0,0,0,0.03);
   }
-  .card h2 { font-size: 16px; margin-top: 0; }
+  .card-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .icon-badge {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  .icon-memoria { background: #e6f4ea; }
+  .icon-vision { background: #ede4fb; }
+  .icon-reparar { background: #fdece3; }
+  .card-head h2 {
+    font-size: 16px;
+    font-weight: 700;
+    margin: 0;
+  }
+  .card-head span.desc {
+    display: block;
+    font-size: 12px;
+    color: #9a94a3;
+    font-weight: 400;
+    margin-top: 1px;
+  }
   textarea {
     width: 100%;
-    min-height: 80px;
-    border: 1px solid #ddd;
-    border-radius: 10px;
-    padding: 10px;
+    min-height: 78px;
+    border: 1.5px solid #ece7f2;
+    border-radius: 14px;
+    padding: 12px 14px;
     font-size: 15px;
     resize: vertical;
+    background: #faf9fc;
+    font-family: inherit;
   }
-  button, label.btn-camara {
-    margin-top: 10px;
+  textarea:focus { outline: none; border-color: #c9b6ec; }
+  button, label.btn {
+    margin-top: 12px;
     width: 100%;
-    padding: 14px;
+    padding: 15px;
     border: none;
-    border-radius: 10px;
-    font-size: 16px;
-    font-weight: 600;
+    border-radius: 14px;
+    font-size: 15.5px;
+    font-weight: 700;
     color: white;
     cursor: pointer;
     text-align: center;
     display: block;
+    letter-spacing: 0.2px;
+    transition: transform 0.1s ease, opacity 0.1s ease;
   }
-  .btn-guardar { background: #2e7d32; }
-  .btn-buscar { background: #1565c0; }
-  .btn-camara { background: #6a1b9a; }
-  .btn-reparar { background: #d84315; }
+  button:active, label.btn:active { transform: scale(0.97); opacity: 0.9; }
+  .btn-guardar { background: linear-gradient(135deg, #34a853, #2e7d32); }
+  .btn-buscar  { background: linear-gradient(135deg, #4285f4, #1565c0); }
+  .btn-vision  { background: linear-gradient(135deg, #a142f4, #6a1b9a); }
+  .btn-reparar { background: linear-gradient(135deg, #ff7043, #d84315); }
   .resultado {
-    margin-top: 12px;
-    padding: 12px;
-    border-radius: 10px;
-    background: #f0f0f0;
+    margin-top: 14px;
+    padding: 14px;
+    border-radius: 14px;
+    background: #f7f5fa;
     font-size: 15px;
-    min-height: 20px;
-    line-height: 1.5;
+    min-height: 18px;
+    line-height: 1.55;
   }
-  .resultado h3 { font-size: 15px; margin: 12px 0 6px 0; }
+  .resultado:empty { display: none; }
+  .resultado h3 { font-size: 15px; margin: 12px 0 6px 0; color: #4a2e7a; }
   .resultado ul { margin: 4px 0; padding-left: 20px; }
   .resultado p { margin: 6px 0; }
-  .cargando { color: #888; font-style: italic; }
+  .cargando { color: #a08fc0; font-style: italic; }
+  .ok { color: #2e7d32; font-weight: 600; }
   img.preview {
     width: 100%;
-    border-radius: 10px;
-    margin-top: 10px;
+    border-radius: 14px;
+    margin-top: 12px;
+    display: block;
   }
 </style>
 </head>
 <body>
 
-<h1>Esperanza App</h1>
-<p class="subtitle">🧠 Memoria · 📷 ¿Qué estoy viendo? · 🔧 Hazlo tú mismo</p>
+<header>
+  <h1>Esperanza App</h1>
+  <p>Tu asistente personal con memoria, ojos y manos 🌸</p>
+</header>
 
 <div class="card">
-  <h2>🧠 Guardar algo nuevo</h2>
+  <div class="card-head">
+    <div class="icon-badge icon-memoria">🧠</div>
+    <div>
+      <h2>Guardar algo nuevo</h2>
+      <span class="desc">Dile qué quieres recordar</span>
+    </div>
+  </div>
   <textarea id="textoGuardar" placeholder="Ej: El filtro de aire de mi carro es Fram CA10171"></textarea>
   <button class="btn-guardar" onclick="guardar()">Guardar</button>
   <div class="resultado" id="resultadoGuardar"></div>
 </div>
 
 <div class="card">
-  <h2>🧠 Preguntar</h2>
+  <div class="card-head">
+    <div class="icon-badge icon-memoria">🔍</div>
+    <div>
+      <h2>Preguntar</h2>
+      <span class="desc">Recupera lo que guardaste</span>
+    </div>
+  </div>
   <textarea id="textoPregunta" placeholder="Ej: ¿Qué filtro de aire usa mi carro?"></textarea>
   <button class="btn-buscar" onclick="buscar()">Preguntar</button>
   <div class="resultado" id="resultadoBuscar"></div>
 </div>
 
 <div class="card">
-  <h2>📷 ¿Qué estoy viendo?</h2>
-  <label class="btn-camara">
+  <div class="card-head">
+    <div class="icon-badge icon-vision">📷</div>
+    <div>
+      <h2>¿Qué estoy viendo?</h2>
+      <span class="desc">Objetos, plantas, animales y más</span>
+    </div>
+  </div>
+  <label class="btn btn-vision">
     Tomar foto
     <input type="file" id="inputFoto" accept="image/*" capture="environment" style="display:none" onchange="fotoSeleccionada()">
   </label>
@@ -99,9 +175,14 @@
 </div>
 
 <div class="card">
-  <h2>🔧 Hazlo tú mismo</h2>
-  <p style="font-size:13px; color:#666; margin-top:-6px;">Fotografía algo que necesite reparación</p>
-  <label class="btn-reparar">
+  <div class="card-head">
+    <div class="icon-badge icon-reparar">🔧</div>
+    <div>
+      <h2>Hazlo tú mismo</h2>
+      <span class="desc">Repara lo que se rompió</span>
+    </div>
+  </div>
+  <label class="btn btn-reparar">
     Tomar foto de la reparación
     <input type="file" id="inputReparar" accept="image/*" capture="environment" style="display:none" onchange="fotoReparar()">
   </label>
@@ -147,7 +228,7 @@ async function guardar() {
     });
     const data = await res.json();
     resultado.className = "resultado";
-    resultado.textContent = data.ok ? "✅ Guardado" : "Error: " + (data.error || "desconocido");
+    resultado.innerHTML = data.ok ? '<span class="ok">✅ Guardado</span>' : "Error: " + (data.error || "desconocido");
     if (data.ok) document.getElementById('textoGuardar').value = "";
   } catch (e) {
     resultado.className = "resultado";
@@ -169,11 +250,7 @@ async function buscar() {
     });
     const data = await res.json();
     resultado.className = "resultado";
-    if (data.respuesta) {
-      resultado.innerHTML = formatearRespuesta(data.respuesta);
-    } else {
-      resultado.textContent = "Error: " + (data.error || "desconocido");
-    }
+    resultado.innerHTML = data.respuesta ? formatearRespuesta(data.respuesta) : "Error: " + (data.error || "desconocido");
   } catch (e) {
     resultado.className = "resultado";
     resultado.textContent = "Error de conexión: " + e.message;
@@ -201,11 +278,7 @@ function fotoSeleccionada() {
       });
       const data = await res.json();
       resultado.className = "resultado";
-      if (data.respuesta) {
-        resultado.innerHTML = formatearRespuesta(data.respuesta);
-      } else {
-        resultado.textContent = "Error: " + (data.error || "desconocido");
-      }
+      resultado.innerHTML = data.respuesta ? formatearRespuesta(data.respuesta) : "Error: " + (data.error || "desconocido");
     } catch (e) {
       resultado.className = "resultado";
       resultado.textContent = "Error de conexión: " + e.message;
@@ -235,11 +308,7 @@ function fotoReparar() {
       });
       const data = await res.json();
       resultado.className = "resultado";
-      if (data.respuesta) {
-        resultado.innerHTML = formatearRespuesta(data.respuesta);
-      } else {
-        resultado.textContent = "Error: " + (data.error || "desconocido");
-      }
+      resultado.innerHTML = data.respuesta ? formatearRespuesta(data.respuesta) : "Error: " + (data.error || "desconocido");
     } catch (e) {
       resultado.className = "resultado";
       resultado.textContent = "Error de conexión: " + e.message;
