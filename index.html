@@ -58,6 +58,7 @@
   .icon-memoria { background: #e6f4ea; }
   .icon-vision { background: #ede4fb; }
   .icon-reparar { background: #fdece3; }
+  .icon-conectar { background: #fff4d6; }
   .card-head h2 {
     font-size: 16px;
     font-weight: 700;
@@ -102,6 +103,7 @@
   .btn-buscar  { background: linear-gradient(135deg, #4285f4, #1565c0); }
   .btn-vision  { background: linear-gradient(135deg, #a142f4, #6a1b9a); }
   .btn-reparar { background: linear-gradient(135deg, #ff7043, #d84315); }
+  .btn-conectar { background: linear-gradient(135deg, #fbc02d, #f57f17); }
   .resultado {
     margin-top: 14px;
     padding: 14px;
@@ -188,6 +190,19 @@
   </label>
   <img id="previewReparar" class="preview" style="display:none">
   <div class="resultado" id="resultadoReparar"></div>
+</div>
+
+<div class="card">
+  <div class="card-head">
+    <div class="icon-badge icon-conectar">💡</div>
+    <div>
+      <h2>Conexiones</h2>
+      <span class="desc">Describe un problema, no una solución</span>
+    </div>
+  </div>
+  <textarea id="textoProblema" placeholder="Ej: Mis clientes agendan pero no llegan a la cita"></textarea>
+  <button class="btn-conectar" onclick="conectar()">Buscar conexiones</button>
+  <div class="resultado" id="resultadoConectar"></div>
 </div>
 
 <script>
@@ -315,6 +330,27 @@ function fotoReparar() {
     }
   };
   reader.readAsDataURL(file);
+}
+
+async function conectar() {
+  const problema = document.getElementById('textoProblema').value.trim();
+  const resultado = document.getElementById('resultadoConectar');
+  if (!problema) { resultado.textContent = "Describe el problema primero."; return; }
+  resultado.textContent = "Buscando conexiones...";
+  resultado.className = "resultado cargando";
+  try {
+    const res = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ accion: "conectar", problema })
+    });
+    const data = await res.json();
+    resultado.className = "resultado";
+    resultado.innerHTML = data.respuesta ? formatearRespuesta(data.respuesta) : "Error: " + (data.error || "desconocido");
+  } catch (e) {
+    resultado.className = "resultado";
+    resultado.textContent = "Error de conexión: " + e.message;
+  }
 }
 </script>
 
