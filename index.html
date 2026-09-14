@@ -113,7 +113,7 @@
   .btn-conectar { background: linear-gradient(135deg, #fbc02d, #f57f17); }
   .btn-ideas { background: linear-gradient(135deg, #29b6f6, #0277bd); }
   .btn-eliminar { background: linear-gradient(135deg, #ef5350, #c62828); }
-  .btn-confirmar { background: linear-gradient(135deg, #ef5350, #c62828); }
+  .btn-confirmar { background: linear-gradient(135deg, #ef5350, #c62828); margin-top: 10px; }
   .resultado {
     margin-top: 14px;
     padding: 14px;
@@ -135,34 +135,55 @@
     margin-top: 12px;
     display: block;
   }
-  .categoria-grupo { margin-top: 14px; }
+
+  /* --- Ideas: tarjetas en vez de lista --- */
+  .categoria-grupo { margin-top: 16px; }
   .categoria-titulo {
-    font-size: 13px;
+    font-size: 12.5px;
     font-weight: 700;
     color: #0277bd;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 6px;
+    letter-spacing: 0.6px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
   }
   .idea-item {
     background: white;
-    border-radius: 10px;
-    padding: 10px 12px;
-    margin-bottom: 6px;
-    font-size: 14px;
-    border: 1px solid #eee;
+    border-radius: 14px;
+    padding: 12px 14px;
+    margin-bottom: 8px;
+    font-size: 14.5px;
+    box-shadow: 0 3px 10px rgba(80,50,120,0.06);
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
   }
+  .idea-emoji { font-size: 18px; flex-shrink: 0; line-height: 1.4; }
+
+  /* --- Eliminar: tarjeta de resultado encontrado --- */
   .encontrado-box {
-    background: #fff5f5;
-    border: 1.5px solid #f5b5b5;
-    border-radius: 12px;
-    padding: 12px;
+    background: linear-gradient(135deg, #fff5f5, #ffeaea);
+    border-radius: 16px;
+    padding: 16px;
+    text-align: left;
   }
   .encontrado-tipo {
-    font-size: 12px;
+    display: inline-block;
+    font-size: 11.5px;
     font-weight: 700;
     color: #c62828;
+    background: white;
+    padding: 4px 10px;
+    border-radius: 20px;
     text-transform: uppercase;
+    letter-spacing: 0.4px;
+  }
+  .encontrado-texto {
+    margin: 10px 0 0;
+    font-size: 15px;
+    line-height: 1.5;
   }
 </style>
 </head>
@@ -274,6 +295,14 @@
 <script>
 const API_URL = "https://esperanza-api.fabianbarboza.workers.dev";
 let claveParaEliminar = null;
+
+const emojiCategoria = {
+  "Negocio": "💼",
+  "Personal": "🏠",
+  "Contenido": "📱",
+  "Producto": "📦",
+  "Otro": "✨"
+};
 
 function formatearRespuesta(texto) {
   if (!texto) return "";
@@ -435,7 +464,8 @@ async function guardarIdea() {
     const data = await res.json();
     resultado.className = "resultado";
     if (data.ok) {
-      resultado.innerHTML = '<span class="ok">✅ Guardado en: ' + data.categoria + '</span>';
+      const emoji = emojiCategoria[data.categoria] || "✨";
+      resultado.innerHTML = '<span class="ok">' + emoji + ' Guardado en ' + data.categoria + '</span>';
       document.getElementById('textoIdea').value = "";
     } else {
       resultado.textContent = "Error: " + (data.error || "desconocido");
@@ -471,9 +501,11 @@ async function verIdeas() {
     });
     let html = "";
     Object.keys(grupos).forEach(function(cat) {
-      html += '<div class="categoria-grupo"><div class="categoria-titulo">' + cat + '</div>';
+      const emoji = emojiCategoria[cat] || "✨";
+      html += '<div class="categoria-grupo"><div class="categoria-titulo">' + emoji + ' ' + cat + '</div>';
       grupos[cat].forEach(function(idea) {
-        html += '<div class="idea-item">' + idea.texto.replace(/&/g,"&amp;").replace(/</g,"&lt;") + '</div>';
+        const textoSeguro = idea.texto.replace(/&/g,"&amp;").replace(/</g,"&lt;");
+        html += '<div class="idea-item"><span class="idea-emoji">' + emoji + '</span><span>' + textoSeguro + '</span></div>';
       });
       html += '</div>';
     });
@@ -504,8 +536,8 @@ async function buscarParaEliminar() {
       const textoSeguro = data.item.texto.replace(/&/g,"&amp;").replace(/</g,"&lt;");
       resultado.innerHTML =
         '<div class="encontrado-box">' +
-        '<div class="encontrado-tipo">' + data.item.tipo + '</div>' +
-        '<p style="margin:6px 0;">' + textoSeguro + '</p>' +
+        '<span class="encontrado-tipo">' + data.item.tipo + '</span>' +
+        '<p class="encontrado-texto">' + textoSeguro + '</p>' +
         '<button class="btn-confirmar" onclick="confirmarEliminar()">Sí, borrar esto</button>' +
         '</div>';
     } else {
@@ -542,3 +574,4 @@ async function confirmarEliminar() {
 
 </body>
 </html>
+
