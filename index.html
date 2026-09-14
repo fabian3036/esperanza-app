@@ -59,6 +59,7 @@
   .icon-vision { background: #ede4fb; }
   .icon-reparar { background: #fdece3; }
   .icon-conectar { background: #fff4d6; }
+  .icon-ideas { background: #e1f5fe; }
   .card-head h2 {
     font-size: 16px;
     font-weight: 700;
@@ -99,11 +100,17 @@
     transition: transform 0.1s ease, opacity 0.1s ease;
   }
   button:active, label.btn:active { transform: scale(0.97); opacity: 0.9; }
+  button.secundario {
+    background: #efeaf9;
+    color: #6a1b9a;
+    margin-top: 8px;
+  }
   .btn-guardar { background: linear-gradient(135deg, #34a853, #2e7d32); }
   .btn-buscar  { background: linear-gradient(135deg, #4285f4, #1565c0); }
   .btn-vision  { background: linear-gradient(135deg, #a142f4, #6a1b9a); }
   .btn-reparar { background: linear-gradient(135deg, #ff7043, #d84315); }
   .btn-conectar { background: linear-gradient(135deg, #fbc02d, #f57f17); }
+  .btn-ideas { background: linear-gradient(135deg, #29b6f6, #0277bd); }
   .resultado {
     margin-top: 14px;
     padding: 14px;
@@ -124,6 +131,23 @@
     border-radius: 14px;
     margin-top: 12px;
     display: block;
+  }
+  .categoria-grupo { margin-top: 14px; }
+  .categoria-titulo {
+    font-size: 13px;
+    font-weight: 700;
+    color: #0277bd;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+  }
+  .idea-item {
+    background: white;
+    border-radius: 10px;
+    padding: 10px 12px;
+    margin-bottom: 6px;
+    font-size: 14px;
+    border: 1px solid #eee;
   }
 </style>
 </head>
@@ -203,6 +227,20 @@
   <textarea id="textoProblema" placeholder="Ej: Mis clientes agendan pero no llegan a la cita"></textarea>
   <button class="btn-conectar" onclick="conectar()">Buscar conexiones</button>
   <div class="resultado" id="resultadoConectar"></div>
+</div>
+
+<div class="card">
+  <div class="card-head">
+    <div class="icon-badge icon-ideas">💭</div>
+    <div>
+      <h2>Banco de Ideas</h2>
+      <span class="desc">Captura cualquier idea, se organiza sola</span>
+    </div>
+  </div>
+  <textarea id="textoIdea" placeholder="Ej: Hacer un combo de pizza + refresco los martes"></textarea>
+  <button class="btn-ideas" onclick="guardarIdea()">Guardar idea</button>
+  <button class="secundario" onclick="verIdeas()">Ver mis ideas</button>
+  <div class="resultado" id="resultadoIdea"></div>
 </div>
 
 <script>
@@ -347,6 +385,70 @@ async function conectar() {
     const data = await res.json();
     resultado.className = "resultado";
     resultado.innerHTML = data.respuesta ? formatearRespuesta(data.respuesta) : "Error: " + (data.error || "desconocido");
+  } catch (e) {
+    resultado.className = "resultado";
+    resultado.textContent = "Error de conexión: " + e.message;
+  }
+}
+
+async function guardarIdea() {
+  const texto = document.getElementById('textoIdea').value.trim();
+  const resultado = document.getElementById('resultadoIdea');
+  if (!texto) { resultado.textContent = "Escribe tu idea primero."; return; }
+  resultado.textContent = "Guardando y clasificando...";
+  resultado.className = "resultado cargando";
+  try {
+    const res = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ accion: "guardarIdea", texto })
+    });
+    const data = await res.json();
+    resultado.className = "resultado";
+    if (data.ok) {
+      resultado.innerHTML = '<span class="ok">✅ Guardado en: ' + data.categoria + '</span>';
+      document.getElementById('textoIdea').value = "";
+    } else {
+      resultado.textContent = "Error: " + (data.error || "desconocido");
+    }
+  } catch (e) {
+    resultado.className = "resultado";
+    resultado.textContent = "Error de conexión: " + e.message;
+  }
+}
+
+async function verIdeas() {
+  const resultado = document.getElementById('resultadoIdea');
+  resultado.textContent = "Cargando tus ideas...";
+  resultado.className = "resultado cargando";
+  try {
+    const res = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ accion: "listarIdeas" })
+    });
+    const data = await res.json();
+    resultado.className = "resultado";
+    const ideas = data.ideas || [];
+    if (ideas.length === 0) {
+      resultado.textContent = "Todavía no has guardado ninguna idea.";
+      return;
+    }
+    const grupos = {};
+    ideas.forEach(function(idea) {
+      const cat = idea.categoria || "Otro";
+      if (!grupos[cat]) grupos[cat] = [];
+      grupos[cat].push(idea);
+    });
+    let html = "";
+    Object.keys(grupos).forEach(function(cat) {
+      html += '<div class="categoria-grupo"><div class="categoria-titulo">' + cat + '</div>';
+      grupos[cat].forEach(function(idea) {
+        html += '<div class="idea-item">' + idea.texto.replace(/&/g,"&amp;").replace(/</g,"&lt;") + '</div>';
+      });
+      html += '</div>';
+    });
+    resultado.innerHTML = html;
   } catch (e) {
     resultado.className = "resultado";
     resultado.textContent = "Error de conexión: " + e.message;
