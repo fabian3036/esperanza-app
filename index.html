@@ -89,6 +89,12 @@
     box-shadow: 0 3px 10px rgba(80,50,120,0.08);
     border-bottom-left-radius: 4px;
   }
+  .burbuja.app.intro {
+    background: #f3eefc;
+    color: #5c4a80;
+    box-shadow: none;
+    font-size: 13.5px;
+  }
   .burbuja.app.cargando { color: #a08fc0; font-style: italic; }
   .burbuja h3 { font-size: 14.5px; margin: 8px 0 4px; color: #4a2e7a; }
   .burbuja ul { margin: 4px 0; padding-left: 18px; }
@@ -176,13 +182,25 @@
 const API_URL = "https://esperanza-api.fabianbarboza.workers.dev";
 
 const modos = [
-  { id: "guardar",    label: "Guardar",   icono: "🧠", tipo: "texto", placeholder: "Ej: El filtro de mi carro es Fram CA10171" },
-  { id: "buscar",     label: "Preguntar", icono: "🔍", tipo: "texto", placeholder: "Ej: ¿Qué filtro usa mi carro?" },
-  { id: "identificar",label: "Ver",       icono: "📷", tipo: "foto"  },
-  { id: "reparar",    label: "Reparar",   icono: "🔧", tipo: "foto"  },
-  { id: "conectar",   label: "Conectar",  icono: "💡", tipo: "texto", placeholder: "Describe un problema, no una solución" },
-  { id: "guardarIdea",label: "Idea",      icono: "💭", tipo: "texto", placeholder: "Ej: Combo de pizza + refresco los martes" },
-  { id: "eliminar",   label: "Borrar",    icono: "🗑️", tipo: "texto", placeholder: "Describe qué quieres borrar" }
+  { id: "guardar",    label: "Guardar",   icono: "🧠", tipo: "texto",
+    placeholder: "Ej: El filtro de mi carro es Fram CA10171",
+    intro: "🧠 Aquí guardo lo que quieras recordar después. Cuéntame algo y no se te va a olvidar." },
+  { id: "buscar",     label: "Preguntar", icono: "🔍", tipo: "texto",
+    placeholder: "Ej: ¿Qué filtro usa mi carro?",
+    intro: "🔍 Pregúntame algo y busco entre todo lo que me has contado antes." },
+  { id: "identificar",label: "Ver",       icono: "📷", tipo: "foto",
+    intro: "📷 Tómale foto a lo que sea y te digo qué es: objetos, plantas, animales, lo que quieras." },
+  { id: "reparar",    label: "Reparar",   icono: "🔧", tipo: "foto",
+    intro: "🔧 Foto a algo que se rompió y te doy el problema probable, herramientas y pasos para arreglarlo." },
+  { id: "conectar",   label: "Conectar",  icono: "💡", tipo: "texto",
+    placeholder: "Describe un problema, no una solución",
+    intro: "💡 Cuéntame un problema (no la solución que ya tienes en mente) y te ayudo a verlo desde ángulos que quizás no habías pensado." },
+  { id: "guardarIdea",label: "Idea",      icono: "💭", tipo: "texto",
+    placeholder: "Ej: Combo de pizza + refresco los martes",
+    intro: "💭 Suéltame cualquier idea que se te ocurra, yo la clasifico y la guardo para que no se pierda." },
+  { id: "eliminar",   label: "Borrar",    icono: "🗑️", tipo: "texto",
+    placeholder: "Describe qué quieres borrar",
+    intro: "🗑️ Descríbeme qué nota o idea quieres borrar, te la muestro y me confirmas antes de eliminarla." }
 ];
 
 let modoActual = modos[0];
@@ -196,8 +214,12 @@ function iniciarChips() {
 }
 
 function elegirModo(id) {
+  if (id === modoActual.id) return;
   modoActual = modos.find(m => m.id === id);
   iniciarChips();
+
+  agregarBurbuja("app intro", modoActual.intro);
+
   const entrada = document.getElementById('entrada');
   if (modoActual.tipo === "texto") {
     document.getElementById('barraTexto').style.display = "flex";
@@ -225,10 +247,10 @@ function formatearRespuesta(texto) {
   return html;
 }
 
-function agregarBurbuja(rol, contenidoHTML, cargando) {
+function agregarBurbuja(rolClases, contenidoHTML, cargando) {
   const chat = document.getElementById('chat');
   const div = document.createElement('div');
-  div.className = "burbuja " + rol + (cargando ? " cargando" : "");
+  div.className = "burbuja " + rolClases + (cargando ? " cargando" : "");
   div.innerHTML = contenidoHTML;
   chat.appendChild(div);
   chat.scrollTop = chat.scrollHeight;
@@ -339,7 +361,7 @@ document.getElementById('entrada').addEventListener('keydown', function(e) {
 });
 
 iniciarChips();
-agregarBurbuja("app", "👋 Hola, soy tu asistente. Elige qué quieres hacer arriba y escribe o toma una foto.");
+agregarBurbuja("app intro", modoActual.intro);
 </script>
 
 </body>
