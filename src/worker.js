@@ -48,8 +48,10 @@ export default {
         const lista = await env.MEMORIA.list();
         const notas = [];
         for (const key of lista.keys) {
-          const valor = await env.MEMORIA.get(key.name);
-          if (valor) notas.push(valor);
+          if (key.name.startsWith("nota:")) {
+            const valor = await env.MEMORIA.get(key.name);
+            if (valor) notas.push(valor);
+          }
         }
         const contexto = notas.length > 0
           ? "Estas son las notas que el usuario ha guardado:\n" + notas.map((n, i) => `${i + 1}. ${n}`).join("\n")
@@ -225,6 +227,64 @@ Sé específico, evita consejos genéricos como "sé creativo" o "piensa fuera d
         const data = await geminiRes.json();
         const respuesta = data?.candidates?.[0]?.content?.parts?.[0]?.text || JSON.stringify(data);
         return new Response(JSON.stringify({ respuesta }), {
+          headers: { "Content-Type": "application/json", ...corsHeaders }
+        });
+      }
+
+      // ---- GUARDAR IDEA (Banco de ideas) ----
+      if (accion === "guardarIdea") {
+        const texto = body.texto;
+        if (!texto) {
+          return new Response(JSON.stringify({ error: "Falta el texto de la idea" }), {
+            status: 400, headers: { "Content-Type": "application/json", ...corsHeaders }
+          });
+        }
+
+        const promptClasificar = `Clasifica la siguiente idea en EXACTAMENTE una de estas categorías: Negocio, Personal, Contenido, Producto, Otro.
+
+Idea: "${texto}"
+
+Responde ÚNICAMENTE con la palabra de la categoría, sin explicación, sin puntuación.`;
+
+        const claseRes = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${env.GEMINI_API_KEY}`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ contents: [{ parts: [{ text: promptClasificar }] }] })
+          }
+        );
+        const claseData = await claseRes.json();
+        let categoria = claseData?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "Otro";
+        const categoriasValidas = ["Negocio", "Personal", "Contenido", "Producto", "Otro"];
+        if (!categoriasValidas.includes(categoria)) categoria = "Otro";
+
+        const clave = `idea:${Date.now()}`;
+        const valor = JSON.stringify({ texto, categoria, fecha: new Date().toISOString() });
+        await env.MEMORIA.put(clave, valor);
+
+        return new Response(JSON.stringify({ ok: true, guardado: texto, categoria }), {
+          headers: { "Content-Type": "application/json", ...corsHeaders }
+        });
+      }
+
+      // ---- LISTAR IDEAS (Banco de ideas) ----
+      if (accion === "listarIdeas") {
+        const lista = await env.MEMORIA.list();
+        const ideas = [];
+        for (const key of lista.keys) {
+          if (key.name.startsWith("idea:")) {
+            const valor = await env.MEMORIA.get(key.name);
+            if (valor) {
+              try {
+                ideas.push(JSON.parse(valor));
+              } catch (e) { /* ignorar entradas corruptas */ }
+            }
+          }
+        }
+        ideas.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+
+        return new Response(JSON.stringify({ ideas }), {
           headers: { "Content-Type": "application/json", ...corsHeaders }
         });
       }
