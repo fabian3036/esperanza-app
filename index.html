@@ -60,6 +60,7 @@
   .icon-reparar { background: #fdece3; }
   .icon-conectar { background: #fff4d6; }
   .icon-ideas { background: #e1f5fe; }
+  .icon-eliminar { background: #fde0e0; }
   .card-head h2 {
     font-size: 16px;
     font-weight: 700;
@@ -111,6 +112,8 @@
   .btn-reparar { background: linear-gradient(135deg, #ff7043, #d84315); }
   .btn-conectar { background: linear-gradient(135deg, #fbc02d, #f57f17); }
   .btn-ideas { background: linear-gradient(135deg, #29b6f6, #0277bd); }
+  .btn-eliminar { background: linear-gradient(135deg, #ef5350, #c62828); }
+  .btn-confirmar { background: linear-gradient(135deg, #ef5350, #c62828); }
   .resultado {
     margin-top: 14px;
     padding: 14px;
@@ -148,6 +151,18 @@
     margin-bottom: 6px;
     font-size: 14px;
     border: 1px solid #eee;
+  }
+  .encontrado-box {
+    background: #fff5f5;
+    border: 1.5px solid #f5b5b5;
+    border-radius: 12px;
+    padding: 12px;
+  }
+  .encontrado-tipo {
+    font-size: 12px;
+    font-weight: 700;
+    color: #c62828;
+    text-transform: uppercase;
   }
 </style>
 </head>
@@ -243,8 +258,22 @@
   <div class="resultado" id="resultadoIdea"></div>
 </div>
 
+<div class="card">
+  <div class="card-head">
+    <div class="icon-badge icon-eliminar">🗑️</div>
+    <div>
+      <h2>Eliminar</h2>
+      <span class="desc">Describe qué nota o idea quieres borrar</span>
+    </div>
+  </div>
+  <textarea id="textoEliminar" placeholder="Ej: la idea del combo de pizza"></textarea>
+  <button class="btn-eliminar" onclick="buscarParaEliminar()">Buscar</button>
+  <div class="resultado" id="resultadoEliminar"></div>
+</div>
+
 <script>
 const API_URL = "https://esperanza-api.fabianbarboza.workers.dev";
+let claveParaEliminar = null;
 
 function formatearRespuesta(texto) {
   if (!texto) return "";
@@ -449,6 +478,61 @@ async function verIdeas() {
       html += '</div>';
     });
     resultado.innerHTML = html;
+  } catch (e) {
+    resultado.className = "resultado";
+    resultado.textContent = "Error de conexión: " + e.message;
+  }
+}
+
+async function buscarParaEliminar() {
+  const descripcion = document.getElementById('textoEliminar').value.trim();
+  const resultado = document.getElementById('resultadoEliminar');
+  if (!descripcion) { resultado.textContent = "Describe qué quieres borrar."; return; }
+  resultado.textContent = "Buscando...";
+  resultado.className = "resultado cargando";
+  claveParaEliminar = null;
+  try {
+    const res = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ accion: "buscarParaEliminar", descripcion })
+    });
+    const data = await res.json();
+    resultado.className = "resultado";
+    if (data.encontrado) {
+      claveParaEliminar = data.item.clave;
+      const textoSeguro = data.item.texto.replace(/&/g,"&amp;").replace(/</g,"&lt;");
+      resultado.innerHTML =
+        '<div class="encontrado-box">' +
+        '<div class="encontrado-tipo">' + data.item.tipo + '</div>' +
+        '<p style="margin:6px 0;">' + textoSeguro + '</p>' +
+        '<button class="btn-confirmar" onclick="confirmarEliminar()">Sí, borrar esto</button>' +
+        '</div>';
+    } else {
+      resultado.textContent = data.mensaje || "No encontré nada que coincida.";
+    }
+  } catch (e) {
+    resultado.className = "resultado";
+    resultado.textContent = "Error de conexión: " + e.message;
+  }
+}
+
+async function confirmarEliminar() {
+  const resultado = document.getElementById('resultadoEliminar');
+  if (!claveParaEliminar) return;
+  resultado.textContent = "Eliminando...";
+  resultado.className = "resultado cargando";
+  try {
+    const res = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ accion: "eliminarClave", clave: claveParaEliminar })
+    });
+    const data = await res.json();
+    resultado.className = "resultado";
+    resultado.innerHTML = data.ok ? '<span class="ok">🗑️ Eliminado</span>' : "Error al eliminar.";
+    claveParaEliminar = null;
+    document.getElementById('textoEliminar').value = "";
   } catch (e) {
     resultado.className = "resultado";
     resultado.textContent = "Error de conexión: " + e.message;
