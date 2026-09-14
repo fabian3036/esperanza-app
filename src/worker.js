@@ -289,6 +289,88 @@ Responde ÚNICAMENTE con la palabra de la categoría, sin explicación, sin punt
         });
       }
 
+      // ---- BUSCAR PARA ELIMINAR (Notas e Ideas) ----
+      if (accion === "buscarParaEliminar") {
+        const descripcion = body.descripcion;
+        if (!descripcion) {
+          return new Response(JSON.stringify({ error: "Falta describir qué quieres borrar" }), {
+            status: 400, headers: { "Content-Type": "application/json", ...corsHeaders }
+          });
+        }
+
+        const lista = await env.MEMORIA.list();
+        const items = [];
+        for (const key of lista.keys) {
+          const valor = await env.MEMORIA.get(key.name);
+          if (!valor) continue;
+          if (key.name.startsWith("nota:")) {
+            items.push({ clave: key.name, tipo: "Nota (Memoria)", texto: valor });
+          } else if (key.name.startsWith("idea:")) {
+            try {
+              const obj = JSON.parse(valor);
+              items.push({ clave: key.name, tipo: "Idea (" + obj.categoria + ")", texto: obj.texto });
+            } catch (e) { /* ignorar */ }
+          }
+        }
+
+        if (items.length === 0) {
+          return new Response(JSON.stringify({ encontrado: false, mensaje: "No hay nada guardado todavía." }), {
+            headers: { "Content-Type": "application/json", ...corsHeaders }
+          });
+        }
+
+        const listaTexto = items.map((it, i) => `${i}. [${it.tipo}] ${it.texto}`).join("\n");
+        const promptBuscar = `El usuario quiere borrar algo de su lista guardada. Aquí está la lista, cada línea empieza con su número de índice:
+
+${listaTexto}
+
+El usuario describió lo que quiere borrar así: "${descripcion}"
+
+Responde ÚNICAMENTE con el número de índice del elemento que mejor coincide. Si ningún elemento coincide claramente, responde exactamente: ninguno`;
+
+        const geminiRes = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${env.GEMINI_API_KEY}`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ contents: [{ parts: [{ text: promptBuscar }] }] })
+          }
+        );
+        const data = await geminiRes.json();
+        const respuestaCruda = (data?.candidates?.[0]?.content?.parts?.[0]?.text || "").trim();
+
+        if (respuestaCruda.toLowerCase().includes("ninguno")) {
+          return new Response(JSON.stringify({ encontrado: false, mensaje: "No encontré nada que coincida con esa descripción." }), {
+            headers: { "Content-Type": "application/json", ...corsHeaders }
+          });
+        }
+
+        const indice = parseInt(respuestaCruda.match(/\d+/)?.[0], 10);
+        if (isNaN(indice) || !items[indice]) {
+          return new Response(JSON.stringify({ encontrado: false, mensaje: "No encontré nada que coincida con esa descripción." }), {
+            headers: { "Content-Type": "application/json", ...corsHeaders }
+          });
+        }
+
+        return new Response(JSON.stringify({ encontrado: true, item: items[indice] }), {
+          headers: { "Content-Type": "application/json", ...corsHeaders }
+        });
+      }
+
+      // ---- ELIMINAR (confirmado) ----
+      if (accion === "eliminarClave") {
+        const clave = body.clave;
+        if (!clave) {
+          return new Response(JSON.stringify({ error: "Falta la clave a eliminar" }), {
+            status: 400, headers: { "Content-Type": "application/json", ...corsHeaders }
+          });
+        }
+        await env.MEMORIA.delete(clave);
+        return new Response(JSON.stringify({ ok: true }), {
+          headers: { "Content-Type": "application/json", ...corsHeaders }
+        });
+      }
+
       return new Response(JSON.stringify({ error: "Acción no reconocida" }), {
         status: 400, headers: { "Content-Type": "application/json", ...corsHeaders }
       });
