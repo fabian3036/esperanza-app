@@ -2,29 +2,23 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Esperanza App</title>
 <style>
   * { box-sizing: border-box; }
-  html, body {
-    height: 100%;
-    margin: 0;
-  }
   body {
     font-family: -apple-system, BlinkMacSystemFont, sans-serif;
     background: linear-gradient(180deg, #fdf6f0 0%, #f4f1fa 100%);
+    margin: 0;
+    padding: 24px 16px 48px;
     color: #2d2a35;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
   }
   header {
     text-align: center;
-    padding: 16px 16px 10px;
-    flex-shrink: 0;
+    margin-bottom: 28px;
   }
   header h1 {
-    font-size: 20px;
+    font-size: 26px;
     font-weight: 800;
     margin: 0;
     background: linear-gradient(90deg, #7b2ff7, #f107a3);
@@ -32,204 +26,281 @@
     background-clip: text;
     color: transparent;
   }
-
-  .chips {
-    display: flex;
-    gap: 8px;
-    padding: 0 14px 12px;
-    overflow-x: auto;
-    flex-shrink: 0;
-    -webkit-overflow-scrolling: touch;
+  header p {
+    color: #8a8494;
+    font-size: 13px;
+    margin: 6px 0 0;
   }
-  .chips::-webkit-scrollbar { display: none; }
-  .chip {
-    flex-shrink: 0;
-    padding: 9px 14px;
-    border-radius: 20px;
-    background: white;
-    border: 1.5px solid #ece7f2;
-    font-size: 13.5px;
-    font-weight: 600;
-    color: #5c5567;
+  .card {
+    background: #ffffff;
+    border-radius: 22px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 8px 24px rgba(80, 50, 120, 0.08);
+    border: 1px solid rgba(0,0,0,0.03);
+  }
+  .card-head {
     display: flex;
     align-items: center;
-    gap: 6px;
-    white-space: nowrap;
+    gap: 10px;
+    margin-bottom: 12px;
   }
-  .chip.activo {
-    background: linear-gradient(135deg, #7b2ff7, #a142f4);
-    border-color: transparent;
-    color: white;
-  }
-
-  #chat {
-    flex: 1;
-    overflow-y: auto;
-    padding: 8px 14px 14px;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-  .burbuja {
-    max-width: 84%;
-    padding: 11px 14px;
-    border-radius: 16px;
-    font-size: 14.5px;
-    line-height: 1.5;
-  }
-  .burbuja.usuario {
-    align-self: flex-end;
-    background: linear-gradient(135deg, #7b2ff7, #a142f4);
-    color: white;
-    border-bottom-right-radius: 4px;
-  }
-  .burbuja.app {
-    align-self: flex-start;
-    background: white;
-    box-shadow: 0 3px 10px rgba(80,50,120,0.08);
-    border-bottom-left-radius: 4px;
-  }
-  .burbuja.app.intro {
-    background: #f3eefc;
-    color: #5c4a80;
-    box-shadow: none;
-    font-size: 13.5px;
-  }
-  .burbuja.app.cargando { color: #a08fc0; font-style: italic; }
-  .burbuja h3 { font-size: 14.5px; margin: 8px 0 4px; color: #4a2e7a; }
-  .burbuja ul { margin: 4px 0; padding-left: 18px; }
-  .burbuja p { margin: 4px 0; }
-  .burbuja img.foto-msg {
-    width: 100%;
-    border-radius: 12px;
-    margin-top: 6px;
-    display: block;
-  }
-  .btn-confirmar {
-    margin-top: 8px;
-    width: 100%;
-    padding: 10px;
-    border: none;
-    border-radius: 10px;
-    background: linear-gradient(135deg, #ef5350, #c62828);
-    color: white;
-    font-weight: 700;
-    font-size: 14px;
-  }
-
-  .barra-entrada {
-    flex-shrink: 0;
-    display: flex;
-    gap: 8px;
-    align-items: flex-end;
-    padding: 10px 14px calc(14px + env(safe-area-inset-bottom));
-    background: rgba(255,255,255,0.7);
-    backdrop-filter: blur(8px);
-    border-top: 1px solid rgba(0,0,0,0.05);
-  }
-  textarea#entrada {
-    flex: 1;
-    resize: none;
-    border: 1.5px solid #ece7f2;
-    border-radius: 18px;
-    padding: 11px 16px;
-    font-size: 15px;
-    font-family: inherit;
-    background: white;
-    max-height: 100px;
-  }
-  textarea#entrada:focus { outline: none; border-color: #c9b6ec; }
-  button#enviar, label#botonFoto {
-    flex-shrink: 0;
-    width: 46px;
-    height: 46px;
+  .icon-badge {
+    width: 38px;
+    height: 38px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #7b2ff7, #a142f4);
-    color: white;
-    border: none;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 20px;
-    cursor: pointer;
+    font-size: 18px;
+    flex-shrink: 0;
   }
-  button#enviar:active, label#botonFoto:active { transform: scale(0.93); }
+  .icon-memoria { background: #e6f4ea; }
+  .icon-vision { background: #ede4fb; }
+  .icon-reparar { background: #fdece3; }
+  .icon-conectar { background: #fff4d6; }
+  .icon-ideas { background: #e1f5fe; }
+  .icon-eliminar { background: #fde0e0; }
+  .card-head h2 {
+    font-size: 16px;
+    font-weight: 700;
+    margin: 0;
+  }
+  .card-head span.desc {
+    display: block;
+    font-size: 12px;
+    color: #9a94a3;
+    font-weight: 400;
+    margin-top: 1px;
+  }
+  textarea {
+    width: 100%;
+    min-height: 78px;
+    border: 1.5px solid #ece7f2;
+    border-radius: 14px;
+    padding: 12px 14px;
+    font-size: 15px;
+    resize: vertical;
+    background: #faf9fc;
+    font-family: inherit;
+  }
+  textarea:focus { outline: none; border-color: #c9b6ec; }
+  button, label.btn {
+    margin-top: 12px;
+    width: 100%;
+    padding: 15px;
+    border: none;
+    border-radius: 14px;
+    font-size: 15.5px;
+    font-weight: 700;
+    color: white;
+    cursor: pointer;
+    text-align: center;
+    display: block;
+    letter-spacing: 0.2px;
+    transition: transform 0.1s ease, opacity 0.1s ease;
+  }
+  button:active, label.btn:active { transform: scale(0.97); opacity: 0.9; }
+  button.secundario {
+    background: #efeaf9;
+    color: #6a1b9a;
+    margin-top: 8px;
+  }
+  .btn-guardar { background: linear-gradient(135deg, #34a853, #2e7d32); }
+  .btn-buscar  { background: linear-gradient(135deg, #4285f4, #1565c0); }
+  .btn-vision  { background: linear-gradient(135deg, #a142f4, #6a1b9a); }
+  .btn-reparar { background: linear-gradient(135deg, #ff7043, #d84315); }
+  .btn-conectar { background: linear-gradient(135deg, #fbc02d, #f57f17); }
+  .btn-ideas { background: linear-gradient(135deg, #29b6f6, #0277bd); }
+  .btn-eliminar { background: linear-gradient(135deg, #ef5350, #c62828); }
+  .btn-confirmar { background: linear-gradient(135deg, #ef5350, #c62828); margin-top: 10px; }
+  .resultado {
+    margin-top: 14px;
+    padding: 14px;
+    border-radius: 14px;
+    background: #f7f5fa;
+    font-size: 15px;
+    min-height: 18px;
+    line-height: 1.55;
+  }
+  .resultado:empty { display: none; }
+  .resultado h3 { font-size: 15px; margin: 12px 0 6px 0; color: #4a2e7a; }
+  .resultado ul { margin: 4px 0; padding-left: 20px; }
+  .resultado p { margin: 6px 0; }
+  .cargando { color: #a08fc0; font-style: italic; }
+  .ok { color: #2e7d32; font-weight: 600; }
+  img.preview {
+    width: 100%;
+    border-radius: 14px;
+    margin-top: 12px;
+    display: block;
+  }
+
+  .categoria-grupo { margin-top: 16px; }
+  .categoria-titulo {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: #0277bd;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .idea-item {
+    background: white;
+    border-radius: 14px;
+    padding: 12px 14px;
+    margin-bottom: 8px;
+    font-size: 14.5px;
+    box-shadow: 0 3px 10px rgba(80,50,120,0.06);
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .idea-emoji { font-size: 18px; flex-shrink: 0; line-height: 1.4; }
+
+  .encontrado-box {
+    background: linear-gradient(135deg, #fff5f5, #ffeaea);
+    border-radius: 16px;
+    padding: 16px;
+    text-align: left;
+  }
+  .encontrado-tipo {
+    display: inline-block;
+    font-size: 11.5px;
+    font-weight: 700;
+    color: #c62828;
+    background: white;
+    padding: 4px 10px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+  }
+  .encontrado-texto {
+    margin: 10px 0 0;
+    font-size: 15px;
+    line-height: 1.5;
+  }
 </style>
 </head>
 <body>
 
 <header>
   <h1>Esperanza App</h1>
+  <p>Tu asistente personal con memoria, ojos y manos 🌸</p>
 </header>
 
-<div class="chips" id="chips"></div>
-
-<div id="chat"></div>
-
-<div class="barra-entrada" id="barraTexto">
-  <textarea id="entrada" rows="1" placeholder="Escribe aquí..."></textarea>
-  <button id="enviar" onclick="enviarTexto()">➤</button>
+<div class="card">
+  <div class="card-head">
+    <div class="icon-badge icon-memoria">🧠</div>
+    <div>
+      <h2>Guardar algo nuevo</h2>
+      <span class="desc">Dile qué quieres recordar</span>
+    </div>
+  </div>
+  <textarea id="textoGuardar" placeholder="Ej: El filtro de aire de mi carro es Fram CA10171"></textarea>
+  <button class="btn-guardar" onclick="guardar()">Guardar</button>
+  <div class="resultado" id="resultadoGuardar"></div>
 </div>
 
-<div class="barra-entrada" id="barraFoto" style="display:none;">
-  <label id="botonFoto" style="width:100%; border-radius:18px; font-size:15px; font-weight:700;">
-    📷 Tomar foto
-    <input type="file" id="inputFoto" accept="image/*" capture="environment" style="display:none" onchange="fotoTomada()">
+<div class="card">
+  <div class="card-head">
+    <div class="icon-badge icon-memoria">🔍</div>
+    <div>
+      <h2>Preguntar</h2>
+      <span class="desc">Recupera lo que guardaste</span>
+    </div>
+  </div>
+  <textarea id="textoPregunta" placeholder="Ej: ¿Qué filtro de aire usa mi carro?"></textarea>
+  <button class="btn-buscar" onclick="buscar()">Preguntar</button>
+  <div class="resultado" id="resultadoBuscar"></div>
+</div>
+
+<div class="card">
+  <div class="card-head">
+    <div class="icon-badge icon-vision">📷</div>
+    <div>
+      <h2>¿Qué estoy viendo?</h2>
+      <span class="desc">Objetos, plantas, animales y más</span>
+    </div>
+  </div>
+  <label class="btn btn-vision">
+    Tomar foto
+    <input type="file" id="inputFoto" accept="image/*" capture="environment" style="display:none" onchange="fotoSeleccionada()">
   </label>
+  <img id="preview" class="preview" style="display:none">
+  <div class="resultado" id="resultadoFoto"></div>
+</div>
+
+<div class="card">
+  <div class="card-head">
+    <div class="icon-badge icon-reparar">🔧</div>
+    <div>
+      <h2>Hazlo tú mismo</h2>
+      <span class="desc">Repara lo que se rompió</span>
+    </div>
+  </div>
+  <label class="btn btn-reparar">
+    Tomar foto de la reparación
+    <input type="file" id="inputReparar" accept="image/*" capture="environment" style="display:none" onchange="fotoReparar()">
+  </label>
+  <img id="previewReparar" class="preview" style="display:none">
+  <div class="resultado" id="resultadoReparar"></div>
+</div>
+
+<div class="card">
+  <div class="card-head">
+    <div class="icon-badge icon-conectar">💡</div>
+    <div>
+      <h2>Conexiones</h2>
+      <span class="desc">Describe un problema, no una solución</span>
+    </div>
+  </div>
+  <textarea id="textoProblema" placeholder="Ej: Mis clientes agendan pero no llegan a la cita"></textarea>
+  <button class="btn-conectar" onclick="conectar()">Buscar conexiones</button>
+  <div class="resultado" id="resultadoConectar"></div>
+</div>
+
+<div class="card">
+  <div class="card-head">
+    <div class="icon-badge icon-ideas">💭</div>
+    <div>
+      <h2>Banco de Ideas</h2>
+      <span class="desc">Captura cualquier idea, se organiza sola</span>
+    </div>
+  </div>
+  <textarea id="textoIdea" placeholder="Ej: Hacer un combo de pizza + refresco los martes"></textarea>
+  <button class="btn-ideas" onclick="guardarIdea()">Guardar idea</button>
+  <button class="secundario" onclick="verIdeas()">Ver mis ideas</button>
+  <div class="resultado" id="resultadoIdea"></div>
+</div>
+
+<div class="card">
+  <div class="card-head">
+    <div class="icon-badge icon-eliminar">🗑️</div>
+    <div>
+      <h2>Eliminar</h2>
+      <span class="desc">Describe qué nota o idea quieres borrar</span>
+    </div>
+  </div>
+  <textarea id="textoEliminar" placeholder="Ej: la idea del combo de pizza"></textarea>
+  <button class="btn-eliminar" onclick="buscarParaEliminar()">Buscar</button>
+  <div class="resultado" id="resultadoEliminar"></div>
 </div>
 
 <script>
 const API_URL = "https://esperanza-api.fabianbarboza.workers.dev";
-
-const modos = [
-  { id: "guardar",    label: "Guardar",   icono: "🧠", tipo: "texto",
-    placeholder: "Ej: El filtro de mi carro es Fram CA10171",
-    intro: "🧠 Aquí guardo lo que quieras recordar después. Cuéntame algo y no se te va a olvidar." },
-  { id: "buscar",     label: "Preguntar", icono: "🔍", tipo: "texto",
-    placeholder: "Ej: ¿Qué filtro usa mi carro?",
-    intro: "🔍 Pregúntame algo y busco entre todo lo que me has contado antes." },
-  { id: "identificar",label: "Ver",       icono: "📷", tipo: "foto",
-    intro: "📷 Tómale foto a lo que sea y te digo qué es: objetos, plantas, animales, lo que quieras." },
-  { id: "reparar",    label: "Reparar",   icono: "🔧", tipo: "foto",
-    intro: "🔧 Foto a algo que se rompió y te doy el problema probable, herramientas y pasos para arreglarlo." },
-  { id: "conectar",   label: "Conectar",  icono: "💡", tipo: "texto",
-    placeholder: "Describe un problema, no una solución",
-    intro: "💡 Cuéntame un problema (no la solución que ya tienes en mente) y te ayudo a verlo desde ángulos que quizás no habías pensado." },
-  { id: "guardarIdea",label: "Idea",      icono: "💭", tipo: "texto",
-    placeholder: "Ej: Combo de pizza + refresco los martes",
-    intro: "💭 Suéltame cualquier idea que se te ocurra, yo la clasifico y la guardo para que no se pierda." },
-  { id: "eliminar",   label: "Borrar",    icono: "🗑️", tipo: "texto",
-    placeholder: "Describe qué quieres borrar",
-    intro: "🗑️ Descríbeme qué nota o idea quieres borrar, te la muestro y me confirmas antes de eliminarla." }
-];
-
-let modoActual = modos[0];
 let claveParaEliminar = null;
 
-function iniciarChips() {
-  const cont = document.getElementById('chips');
-  cont.innerHTML = modos.map(m =>
-    `<div class="chip${m.id === modoActual.id ? ' activo' : ''}" onclick="elegirModo('${m.id}')">${m.icono} ${m.label}</div>`
-  ).join('');
-}
-
-function elegirModo(id) {
-  if (id === modoActual.id) return;
-  modoActual = modos.find(m => m.id === id);
-  iniciarChips();
-
-  agregarBurbuja("app intro", modoActual.intro);
-
-  const entrada = document.getElementById('entrada');
-  if (modoActual.tipo === "texto") {
-    document.getElementById('barraTexto').style.display = "flex";
-    document.getElementById('barraFoto').style.display = "none";
-    entrada.placeholder = modoActual.placeholder;
-  } else {
-    document.getElementById('barraTexto').style.display = "none";
-    document.getElementById('barraFoto').style.display = "flex";
-  }
-}
+const emojiCategoria = {
+  "Negocio": "💼",
+  "Personal": "🏠",
+  "Contenido": "📱",
+  "Producto": "📦",
+  "Otro": "✨"
+};
 
 function formatearRespuesta(texto) {
   if (!texto) return "";
@@ -239,99 +310,72 @@ function formatearRespuesta(texto) {
   html = html.replace(/^##\s+(.+)$/gm, "<h3>$1</h3>");
   html = html.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
   html = html.replace(/^[\*\-]\s+(.+)$/gm, "<li>$1</li>");
-  html = html.replace(/(<li>.*<\/li>\n?)+/g, m => "<ul>" + m + "</ul>");
-  html = html.split(/\n\n+/).map(b => {
-    if (b.trim().startsWith("<h3>") || b.trim().startsWith("<ul>")) return b;
-    return "<p>" + b.replace(/\n/g, "<br>") + "</p>";
+  html = html.replace(/(<li>.*<\/li>\n?)+/g, function(match) {
+    return "<ul>" + match + "</ul>";
+  });
+  html = html.replace(/^---$/gm, "<hr>");
+  html = html.split(/\n\n+/).map(function(bloque) {
+    if (bloque.trim().startsWith("<h3>") || bloque.trim().startsWith("<ul>") || bloque.trim() === "<hr>") {
+      return bloque;
+    }
+    return "<p>" + bloque.replace(/\n/g, "<br>") + "</p>";
   }).join("");
   return html;
 }
 
-function agregarBurbuja(rolClases, contenidoHTML, cargando) {
-  const chat = document.getElementById('chat');
-  const div = document.createElement('div');
-  div.className = "burbuja " + rolClases + (cargando ? " cargando" : "");
-  div.innerHTML = contenidoHTML;
-  chat.appendChild(div);
-  chat.scrollTop = chat.scrollHeight;
-  return div;
-}
-
-async function enviarTexto() {
-  const entrada = document.getElementById('entrada');
-  const texto = entrada.value.trim();
-  if (!texto) return;
-  entrada.value = "";
-
-  agregarBurbuja("usuario", texto.replace(/&/g,"&amp;").replace(/</g,"&lt;"));
-  const burbujaCarga = agregarBurbuja("app", "Pensando...", true);
-
-  let body = {};
-  if (modoActual.id === "guardar") body = { accion: "guardar", texto };
-  else if (modoActual.id === "buscar") body = { accion: "buscar", pregunta: texto };
-  else if (modoActual.id === "conectar") body = { accion: "conectar", problema: texto };
-  else if (modoActual.id === "guardarIdea") body = { accion: "guardarIdea", texto };
-  else if (modoActual.id === "eliminar") body = { accion: "buscarParaEliminar", descripcion: texto };
-
+async function guardar() {
+  const texto = document.getElementById('textoGuardar').value.trim();
+  const resultado = document.getElementById('resultadoGuardar');
+  if (!texto) { resultado.textContent = "Escribe algo primero."; return; }
+  resultado.textContent = "Guardando...";
+  resultado.className = "resultado cargando";
   try {
     const res = await fetch(API_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body)
+      body: JSON.stringify({ accion: "guardar", texto })
     });
     const data = await res.json();
-    burbujaCarga.classList.remove("cargando");
-
-    if (modoActual.id === "guardar") {
-      burbujaCarga.innerHTML = data.ok ? "✅ Guardado" : "Error: " + (data.error || "desconocido");
-    } else if (modoActual.id === "guardarIdea") {
-      burbujaCarga.innerHTML = data.ok ? "✅ Guardado en: " + data.categoria : "Error: " + (data.error || "desconocido");
-    } else if (modoActual.id === "eliminar") {
-      if (data.encontrado) {
-        claveParaEliminar = data.item.clave;
-        const textoSeguro = data.item.texto.replace(/&/g,"&amp;").replace(/</g,"&lt;");
-        burbujaCarga.innerHTML = "<strong>" + data.item.tipo + "</strong><p>" + textoSeguro + "</p>" +
-          '<button class="btn-confirmar" onclick="confirmarEliminar(this)">Sí, borrar esto</button>';
-      } else {
-        burbujaCarga.textContent = data.mensaje || "No encontré nada que coincida.";
-      }
-    } else {
-      burbujaCarga.innerHTML = data.respuesta ? formatearRespuesta(data.respuesta) : "Error: " + (data.error || "desconocido");
-    }
+    resultado.className = "resultado";
+    resultado.innerHTML = data.ok ? '<span class="ok">✅ Guardado</span>' : "Error: " + (data.error || "desconocido");
+    if (data.ok) document.getElementById('textoGuardar').value = "";
   } catch (e) {
-    burbujaCarga.classList.remove("cargando");
-    burbujaCarga.textContent = "Error de conexión: " + e.message;
+    resultado.className = "resultado";
+    resultado.textContent = "Error de conexión: " + e.message;
   }
 }
 
-async function confirmarEliminar(boton) {
-  boton.disabled = true;
-  boton.textContent = "Eliminando...";
+async function buscar() {
+  const pregunta = document.getElementById('textoPregunta').value.trim();
+  const resultado = document.getElementById('resultadoBuscar');
+  if (!pregunta) { resultado.textContent = "Escribe una pregunta primero."; return; }
+  resultado.textContent = "Pensando...";
+  resultado.className = "resultado cargando";
   try {
     const res = await fetch(API_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ accion: "eliminarClave", clave: claveParaEliminar })
+      body: JSON.stringify({ accion: "buscar", pregunta })
     });
     const data = await res.json();
-    boton.parentElement.innerHTML = data.ok ? "🗑️ Eliminado" : "Error al eliminar.";
-    claveParaEliminar = null;
+    resultado.className = "resultado";
+    resultado.innerHTML = data.respuesta ? formatearRespuesta(data.respuesta) : "Error: " + (data.error || "desconocido");
   } catch (e) {
-    boton.textContent = "Error, intenta de nuevo";
-    boton.disabled = false;
+    resultado.className = "resultado";
+    resultado.textContent = "Error de conexión: " + e.message;
   }
 }
 
-function fotoTomada() {
+function fotoSeleccionada() {
   const input = document.getElementById('inputFoto');
+  const preview = document.getElementById('preview');
+  const resultado = document.getElementById('resultadoFoto');
   const file = input.files[0];
   if (!file) return;
-
-  const urlPreview = URL.createObjectURL(file);
-  agregarBurbuja("usuario", '<img class="foto-msg" src="' + urlPreview + '">');
-  const etiqueta = modoActual.id === "identificar" ? "Analizando imagen..." : "Analizando el problema...";
-  const burbujaCarga = agregarBurbuja("app", etiqueta, true);
-
+  preview.src = URL.createObjectURL(file);
+  preview.style.display = "block";
+  resultado.textContent = "Analizando imagen...";
+  resultado.className = "resultado cargando";
   const reader = new FileReader();
   reader.onload = async function() {
     const base64Puro = reader.result.split(',')[1];
@@ -339,29 +383,191 @@ function fotoTomada() {
       const res = await fetch(API_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ accion: modoActual.id, imagen: base64Puro, mimeType: file.type })
+        body: JSON.stringify({ accion: "identificar", imagen: base64Puro, mimeType: file.type })
       });
       const data = await res.json();
-      burbujaCarga.classList.remove("cargando");
-      burbujaCarga.innerHTML = data.respuesta ? formatearRespuesta(data.respuesta) : "Error: " + (data.error || "desconocido");
+      resultado.className = "resultado";
+      resultado.innerHTML = data.respuesta ? formatearRespuesta(data.respuesta) : "Error: " + (data.error || "desconocido");
     } catch (e) {
-      burbujaCarga.classList.remove("cargando");
-      burbujaCarga.textContent = "Error de conexión: " + e.message;
+      resultado.className = "resultado";
+      resultado.textContent = "Error de conexión: " + e.message;
     }
   };
   reader.readAsDataURL(file);
-  input.value = "";
 }
 
-document.getElementById('entrada').addEventListener('keydown', function(e) {
-  if (e.key === "Enter" && !e.shiftKey) {
-    e.preventDefault();
-    enviarTexto();
-  }
-});
+function fotoReparar() {
+  const input = document.getElementById('inputReparar');
+  const preview = document.getElementById('previewReparar');
+  const resultado = document.getElementById('resultadoReparar');
+  const file = input.files[0];
+  if (!file) return;
+  preview.src = URL.createObjectURL(file);
+  preview.style.display = "block";
+  resultado.textContent = "Analizando el problema...";
+  resultado.className = "resultado cargando";
+  const reader = new FileReader();
+  reader.onload = async function() {
+    const base64Puro = reader.result.split(',')[1];
+    try {
+      const res = await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ accion: "reparar", imagen: base64Puro, mimeType: file.type })
+      });
+      const data = await res.json();
+      resultado.className = "resultado";
+      resultado.innerHTML = data.respuesta ? formatearRespuesta(data.respuesta) : "Error: " + (data.error || "desconocido");
+    } catch (e) {
+      resultado.className = "resultado";
+      resultado.textContent = "Error de conexión: " + e.message;
+    }
+  };
+  reader.readAsDataURL(file);
+}
 
-iniciarChips();
-agregarBurbuja("app intro", modoActual.intro);
+async function conectar() {
+  const problema = document.getElementById('textoProblema').value.trim();
+  const resultado = document.getElementById('resultadoConectar');
+  if (!problema) { resultado.textContent = "Describe el problema primero."; return; }
+  resultado.textContent = "Buscando conexiones...";
+  resultado.className = "resultado cargando";
+  try {
+    const res = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ accion: "conectar", problema })
+    });
+    const data = await res.json();
+    resultado.className = "resultado";
+    resultado.innerHTML = data.respuesta ? formatearRespuesta(data.respuesta) : "Error: " + (data.error || "desconocido");
+  } catch (e) {
+    resultado.className = "resultado";
+    resultado.textContent = "Error de conexión: " + e.message;
+  }
+}
+
+async function guardarIdea() {
+  const texto = document.getElementById('textoIdea').value.trim();
+  const resultado = document.getElementById('resultadoIdea');
+  if (!texto) { resultado.textContent = "Escribe tu idea primero."; return; }
+  resultado.textContent = "Guardando y clasificando...";
+  resultado.className = "resultado cargando";
+  try {
+    const res = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ accion: "guardarIdea", texto })
+    });
+    const data = await res.json();
+    resultado.className = "resultado";
+    if (data.ok) {
+      const emoji = emojiCategoria[data.categoria] || "✨";
+      resultado.innerHTML = '<span class="ok">' + emoji + ' Guardado en ' + data.categoria + '</span>';
+      document.getElementById('textoIdea').value = "";
+    } else {
+      resultado.textContent = "Error: " + (data.error || "desconocido");
+    }
+  } catch (e) {
+    resultado.className = "resultado";
+    resultado.textContent = "Error de conexión: " + e.message;
+  }
+}
+
+async function verIdeas() {
+  const resultado = document.getElementById('resultadoIdea');
+  resultado.textContent = "Cargando tus ideas...";
+  resultado.className = "resultado cargando";
+  try {
+    const res = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ accion: "listarIdeas" })
+    });
+    const data = await res.json();
+    resultado.className = "resultado";
+    const ideas = data.ideas || [];
+    if (ideas.length === 0) {
+      resultado.textContent = "Todavía no has guardado ninguna idea.";
+      return;
+    }
+    const grupos = {};
+    ideas.forEach(function(idea) {
+      const cat = idea.categoria || "Otro";
+      if (!grupos[cat]) grupos[cat] = [];
+      grupos[cat].push(idea);
+    });
+    let html = "";
+    Object.keys(grupos).forEach(function(cat) {
+      const emoji = emojiCategoria[cat] || "✨";
+      html += '<div class="categoria-grupo"><div class="categoria-titulo">' + emoji + ' ' + cat + '</div>';
+      grupos[cat].forEach(function(idea) {
+        const textoSeguro = idea.texto.replace(/&/g,"&amp;").replace(/</g,"&lt;");
+        html += '<div class="idea-item"><span class="idea-emoji">' + emoji + '</span><span>' + textoSeguro + '</span></div>';
+      });
+      html += '</div>';
+    });
+    resultado.innerHTML = html;
+  } catch (e) {
+    resultado.className = "resultado";
+    resultado.textContent = "Error de conexión: " + e.message;
+  }
+}
+
+async function buscarParaEliminar() {
+  const descripcion = document.getElementById('textoEliminar').value.trim();
+  const resultado = document.getElementById('resultadoEliminar');
+  if (!descripcion) { resultado.textContent = "Describe qué quieres borrar."; return; }
+  resultado.textContent = "Buscando...";
+  resultado.className = "resultado cargando";
+  claveParaEliminar = null;
+  try {
+    const res = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ accion: "buscarParaEliminar", descripcion })
+    });
+    const data = await res.json();
+    resultado.className = "resultado";
+    if (data.encontrado) {
+      claveParaEliminar = data.item.clave;
+      const textoSeguro = data.item.texto.replace(/&/g,"&amp;").replace(/</g,"&lt;");
+      resultado.innerHTML =
+        '<div class="encontrado-box">' +
+        '<span class="encontrado-tipo">' + data.item.tipo + '</span>' +
+        '<p class="encontrado-texto">' + textoSeguro + '</p>' +
+        '<button class="btn-confirmar" onclick="confirmarEliminar()">Sí, borrar esto</button>' +
+        '</div>';
+    } else {
+      resultado.textContent = data.mensaje || "No encontré nada que coincida.";
+    }
+  } catch (e) {
+    resultado.className = "resultado";
+    resultado.textContent = "Error de conexión: " + e.message;
+  }
+}
+
+async function confirmarEliminar() {
+  const resultado = document.getElementById('resultadoEliminar');
+  if (!claveParaEliminar) return;
+  resultado.textContent = "Eliminando...";
+  resultado.className = "resultado cargando";
+  try {
+    const res = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ accion: "eliminarClave", clave: claveParaEliminar })
+    });
+    const data = await res.json();
+    resultado.className = "resultado";
+    resultado.innerHTML = data.ok ? '<span class="ok">🗑️ Eliminado</span>' : "Error al eliminar.";
+    claveParaEliminar = null;
+    document.getElementById('textoEliminar').value = "";
+  } catch (e) {
+    resultado.className = "resultado";
+    resultado.textContent = "Error de conexión: " + e.message;
+  }
+}
 </script>
 
 </body>
